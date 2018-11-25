@@ -24,17 +24,35 @@ def get_special( dirname ):
     sp_list = filter( lambda f: bool( SPECIAL_RE.match( f ) ), os.listdir( dirname ) )
     return map( lambda f: os.path.join( os.getcwd(), f ), sp_list )
 
+
 def copy_to( files, dest ):
     # given a list of paths, copies those files into the given directory
     for file in files:
         shutil.copyfile( file, os.path.join( dest, file.split('/')[-1] ) )
     return
 
-def zip_to( files, dest ):
+
+def zip( files, dest ):
     # given a list of paths, zip those files up into the given zipfile
     with ZipFile( dest, 'w' ) as archive:
         for file in files:
             archive.write( file )
+
+
+def zip_to( files, dest ):
+    """If the "--tozip zipfile" option is present at the start of the command
+    line, run this command: "zip -j zipfile <list all the files>". This will
+    create a zipfile containing the files. Just for fun/reassurance, also print
+    the command line you are going to do first (as shown in lecture). (Windows
+    note: windows does not come with a program to produce standard .zip
+    archives by default, but you can get download the free and open zip
+    program from [www.info-zip.org](http://www.info-zip.org/).)"""
+    command = 'zip -j {zipfile} {filez}'.format( zipfile=dest, filez=' '.join( files ) )
+    # this became a tuple IDK why?
+    # print( 'Command I\'m going to try:' + '\n' + command )
+    print 'Command I\'m going to try:' + '\n' + command
+    commands.getoutput( command )
+    return
 
 # +++your code here+++
 # Write functions and modify main() to call them
