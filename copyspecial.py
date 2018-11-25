@@ -12,9 +12,29 @@ import os
 import shutil
 import commands
 import argparse
+from zipfile import ZipFile
+"""Copy Special exercise"""
 
-"""Copy Special exercise
-"""
+# change this for a
+SPECIAL_RE = re.compile(r'.+__\w+__.+')
+
+def get_special( dirname ):
+    #  returns a list of the absolute paths of the special files in the given directory
+    global SPECIAL_RE
+    sp_list = filter( lambda f: bool( SPECIAL_RE.match( f ) ), os.listdir( dirname ) )
+    return map( lambda f: os.path.join( os.getcwd(), f ), sp_list )
+
+def copy_to( files, dest ):
+    # given a list of paths, copies those files into the given directory
+    for file in files:
+        shutil.copyfile( file, os.path.join( dest, file.split('/')[-1] ) )
+    return
+
+def zip_to( files, dest ):
+    # given a list of paths, zip those files up into the given zipfile
+    with ZipFile( dest, 'w' ) as archive:
+        for file in files:
+            archive.write( file )
 
 # +++your code here+++
 # Write functions and modify main() to call them
@@ -24,6 +44,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--todir', help='dest dir for special files')
     parser.add_argument('--tozip', help='dest zipfile for special files')
+    parser.add_argument('dirname', type=str, help='dest zipfile for special files')
     # TODO need an argument to pick up 'from_dir'
     args = parser.parse_args()
 
@@ -36,6 +57,24 @@ def main():
 
     # +++your code here+++
     # Call your functions
-  
+    #
+
+    if args.todir:
+        if not os.path.exists( args.todir ):
+            os.mkdir( os.path.join( os.getcwd(), args.todir ) )
+        else:
+            pass
+        copy_to( get_special( args.dirname ), args.todir )
+    elif args.tozip:
+        if os.path.exists( args.tozip ):
+            print( 'Filename already exists' )
+            return 1
+        else:
+            zip_to( get_special( args.dirname ), args.tozip )
+    else:
+        for file in get_special( args.dirname ):
+            print( file )
+
+
 if __name__ == "__main__":
     main()
